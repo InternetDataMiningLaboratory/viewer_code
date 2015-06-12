@@ -39,12 +39,12 @@ all_module = {
 '''
 settings = {
     'debug' : True, #调试选项，开启后每一次源文件的更改将会自动重启服务器(而不需要手动操作)
-    'xsrf_cookies' : True, #xsrf验证，需要cookie_secret设置项
-    'login_url' : '/login', #登陆url，在get_current_user验证失败后的默认页面重定向地址
-    'cookie_secret' : 'KPbSmiu/T8OO8T0TQFIwCfN2e1BxFkwQslfliXClLjk=', #cookie加密项
-    'static_path' : os.path.join(os.path.dirname(__file__), 'static'), #静态文件地址
-    'template_path' : os.path.join(os.path.dirname(__file__), 'templates'), #前端模板文件地址
+    'xsrf_cookies' : True,
+    'login_url' : '/login', 
+    'cookie_secret' : os.getenv('COOKIE_SECRET'), 
+    'static_path' : os.path.join(os.path.dirname(__file__), 'static'),
+    'template_path' : os.path.join(os.path.dirname(__file__), 'templates'),
     #'log_file_prefix': '8888.log',
-    'ui_modules':all_module, #模块载入项
+    'ui_modules':all_module,
 }
 
