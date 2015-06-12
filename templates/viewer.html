@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{%block header%}
+    <link href= {{ static_url("css/viewer.css") }} rel="stylesheet">
+{%end%}
+{%block body%}
+    <div class="row">
+        <div class="col-sm-3 col-md-1" id="leftMain">
+            <ul class="nav nav-sidebar">
+                <li id="leftLogo">
+                    Logo    
+                <li>
+                <li>
+                    <a href="/">
+                        <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
+                        <div>广场</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="/search">
+                        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                        <div>搜索</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="/list/collected">
+                        <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
+                        <div>收藏</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="/settings">
+                        <span class="glyphicon glyphicon-asterisk" aria-hidden="true"></span>
+                        <div>设置</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="#logout" data-toggle="modal">
+                        <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
+                        <div>注销</div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-11 col-md-offset-1" id="rightMain">
+            {% module BackTop()%}
+            {%block main%}{%end%}
+        </div>
+    </div>
+{%end%}
+{%block footer%}
+    <script>
+        {%if active_index%}
+        $(document).ready(function(){
+            $("div#leftMain ul li a").removeClass("active");    
+            $("div#leftMain ul li:eq({{active_index}}) a").addClass("active");    
+        });
+        {%end%}
+    </script>
+{%end%}

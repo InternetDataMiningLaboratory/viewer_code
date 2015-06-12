@@ -1,0 +1,16 @@
+.form-control:hover, .form-control:focus{
+    height: 34px;
+}
+.main-form{
+    margin-top: 60px;
+}
+.search-btn{
+    background-color:#611427;
+    color: #fff;
+    box-shadow: 0 1px 1px rgba(0,0,0, 0.8);
+    margin: 0;
+}
+.search-btn:hover, .search-btn:focus{
+    color:#fff;
+    box-shadow: 0 1px 10px rgba(0,0,0, 0.8);
+}

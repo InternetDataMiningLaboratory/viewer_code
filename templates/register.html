@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{%block header%}
+    <link href= {{ static_url("css/fullScreen.css") }} rel="stylesheet">
+{%end%}
+{% block body%}
+    <div class="site-wrapper">        
+        <div class="container col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3">
+            <div class="main-area">
+                <div class="main-title">
+                    <span class="glyphicon glyphicon-cloud"></span> 
+                    企业信息服务平台-注册
+                </div>            
+                <form>
+                    {% raw xsrf_form_html() %}
+                    <label for="Username">用户名</label>
+                    <input type="text" id="Username" name="username" class="form-control" placeholder="用户名" required autofocus>
+                    <label for="Password">密码</label>
+                    <input type="password" id="Password" name="password" class="form-control" placeholder="密码" required>
+                    <label for="SurePassword">确认密码</label>
+                    <input type="password" id="SurePassword" name="surepassword" class="form-control" placeholder="确认密码" required>
+                    <label>模型</label>
+                    <select class="form-control" name="model">
+                        {%for model in models %}
+                        <option value="{{model['model_id']}}">{{model['model_name']}}</option>
+                        {%end%}
+                    </select>
+                    <label for="keyword">关键字</label>
+                    <textarea id="keyword" class="form-control" name="keyword" rol="10" placeholder="关键字 请用;隔开"></textarea>
+                    <button class="btn btn-lg btn-block login-btn" type="submit">注册</button>
+                    <a href="/login" class="btn btn-lg btn-block login-btn register" role="button">进入登录界面</a>
+                </form>
+            </div>
+        </div>
+    </div>
+{%end%}
+{% block footer %}
+    <script>
+        function ensure_password(password, surepassword){
+            if(password.value == surepassword.value) return true;
+            return false;
+        }
+        function validate_register(theForm){
+            with(theForm){
+                if(ensure_password(password, surepassword)==false){
+                    alerting("确认密码不符，请重新输入！", "danger")
+                    surepassword.focus();
+                    return false;
+                }
+                return true;
+            }
+        }
+        $("form").submit(function(e){
+            e.preventDefault();
+            if(validate_register(this)){
+                $.post(
+                    "#",
+                    $("form").serialize(),
+                    function(data){
+                        if(data=="Success"){
+                            window.location.href="/login";
+                        }
+                        alerting(data, "danger");
+                    }
+                )
+            }
+        });
+    </script>
+{% end %}

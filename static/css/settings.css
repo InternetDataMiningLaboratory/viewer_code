@@ -1,0 +1,44 @@
+.logout{
+    float: right;
+}
+.logout button{
+    color: rgb(153, 153, 153);
+    background-color: inherit;
+    border: none;
+}
+.logout button:hover, .logout button:focus{
+    color: #000;
+    border: none;
+    outline: none;
+}
+section{
+    margin-bottom: 30px;
+}
+.keyword{
+    height: 30px;
+    line-height: 30px;
+    border-left: 1px solid #000;
+}
+.keyword span{
+    float:right;
+    cursor: pointer;
+}
+.keyword span:hover{
+    color:#611427; 
+}
+.new-keyword{
+    height: 40px;
+    line-height: 40px;
+    background-color: #611427;
+    color: #fff;
+    cursor: pointer;
+}
+.new-keyword a{
+    color: #fff;
+}
+.new-keyword:hover{
+    padding-left:20px;
+}
+.new-keyword a:hover{
+    text-decoration:none;
+}

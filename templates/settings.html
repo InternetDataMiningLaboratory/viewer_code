@@ -1,0 +1,45 @@
+{% extends "viewer.html" %}
+{% block header%}
+    <link href= {{ static_url("css/viewer.css") }} rel="stylesheet">
+    <link href= {{ static_url("css/settings.css") }} rel="stylesheet">
+{% end %}
+{% block main%}
+    <div class="container">
+        <h1>设置 
+            <small>{{ user_info['user_name'] }}</small>
+            <span class="logout">
+                <button data-toggle="modal" data-target="#logout">注销</button>
+            </span>
+        </h1>
+        <hr></hr>
+        <section>
+            <h4>基本信息</h4>
+            <div class="row">
+                <div class="col-md-2 col-sm-12">用户名</div>
+                <div class="col-md-10 col-sm-12">{{user_info['user_name']}}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-2 col-sm-12">使用模型</div>
+                <div class="col-md-10 col-sm-12">{{user_info['model_name']}}</div>
+            </div>
+        </section>
+        <section>
+            <h4>关键字</h4>
+            <div class="row">
+                {% for keyword in keywords %}
+                <div class="col-md-3 col-sm-12 keyword">
+                    {{keyword['keyword']}}
+                    <span class="glyphicon glyphicon-remove"></span>
+                </div>
+                {%end%}
+                <a href="#newKeyword" data-toggle="modal">
+                    <div class="col-md-3 col-sm-12 keyword new-keyword">
+                    添加新的关键字
+                    </div>
+                </a>
+            </div>
+        </section>
+
+    </div>
+</div>
+{% end%}

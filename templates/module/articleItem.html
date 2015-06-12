@@ -1,0 +1,19 @@
+<a name="{{article_item.data_id}}"></a>
+<a href="/article/{{article_item.data_id}}?data_score={{article_item.data_score}}" class="list-group-item view-article">
+    <div class="row"> 
+        <div class="col-sm-10 col-md-10">
+            <h4 class="list-group-item-heading">{{ article_item.data_title }}</h4>
+        </div>
+        <div class="col-sm-2 col-md-2 right-info">
+            <h3>
+                {{ article_item.data_score }}
+                {%if article_item.data_ifcollected %}
+                    <span class="glyphicon glyphicon-heart collected collection"></span>
+                {%else%}
+                    <span class="glyphicon glyphicon-heart-empty uncollected collection"></span>
+                {%end%}
+                    
+            </h3>
+        </div>
+    </div>
+</a>

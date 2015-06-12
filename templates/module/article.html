@@ -1,0 +1,17 @@
+<div class="article-body" data-id="{{ article['data_id'] }}">
+    <div class="row">
+        <div class="article-body-main col-md-10">
+            <h1 class="article-body-title">{{ article['title'] }}</h1>
+            {% raw article['body'] %}
+        </div>
+        <div class="col-md-2">
+            <div class="score">
+                {{ article['data_score']*100}} 
+            </div>
+            <ul class="info list-unstyled">
+                <li class="info-title">来源网站</li>
+                <li class="info-li">article['site_name']}}</li>
+            </ul>
+        </div>
+    </div>
+</div>

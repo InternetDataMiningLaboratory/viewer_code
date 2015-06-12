@@ -1,0 +1,9 @@
+{% extends "viewer.html" %}
+{% block main%}
+    <div class="list-group" data-load={{now_load}}>
+        {% for article_item in article_items %}
+            {% module ArticleItem(article_item)%}
+        {%end%}
+    </div>
+    {% module RefreshingList()%} 
+{% end%}

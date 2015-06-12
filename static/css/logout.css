@@ -1,0 +1,13 @@
+.logout{
+    float: right;
+}
+.logout button{
+    color: rgb(153, 153, 153);
+    background-color: inherit;
+    border: none;
+}
+.logout button:hover, .logout button:focus{
+    color: #000;
+    border: none;
+    outline: none;
+}

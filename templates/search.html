@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{%block header%}
+    <link href= {{ static_url("css/fullScreen.css") }} rel="stylesheet">
+    <link href= {{ static_url("css/search.css") }} rel="stylesheet">
+{%end%}
+{% block body%}
+    <div class="site-wrapper">        
+        <div class="container col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+            <div class="main-area">
+                <div class="main-title">
+                    <span class="glyphicon glyphicon-cloud"></span> 
+                    企业信息服务平台
+                </div>            
+                <form action="#" method="post" class="form-inline">
+                    {% raw xsrf_form_html() %}
+                    <div class="form-group main-form">
+                        <div class="input-group">
+                            <input type="text" id="Keyword" name="keyword" class="form-control" placeholder="搜索" autofocus>
+                            <span class="input-group-btn">
+                                <button class="btn search-btn" type="submit"><span class="glyphicon glyphicon-search"></span></button>
+                            </span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{%end%}
