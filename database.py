@@ -35,6 +35,7 @@ try:
             user=os.getenv('DATABASE_USER'),
             password=os.getenv('DATABASE_PASSWD'),
         )
+    print os.getenv('DATABASE_USER')
     CONTRIBUTE_CRAWLER =\
         torndb.Connection(
             'mysql.service.consul',
