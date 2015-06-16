@@ -64,6 +64,7 @@ class RegisterHandler(BaseHandler):
                 keywords = keywords.split(';')
                 for keyword in keywords:
                     database.Keyword.new(keyword, user_id) 
+            gen.calculate(user_id).next()
             self.write("Success")
 
 class LoginHandler(BaseHandler):
@@ -78,8 +79,10 @@ class LoginHandler(BaseHandler):
         user_password = self.get_argument('password')
         if not database.User.login(user_name, user_password):
             #密码错误
+            logging.error('密码错误')
             self.redirect('/login')
         else:
+            logging.error('密码无错误')
             remember_me = self.get_argument('remember', None)
             expires = 7 #cookie过期时间
             if remember_me is None:
@@ -103,19 +106,12 @@ class SearchHandler(SafeHandler):
     def post(self):
         search_word = json.dumps(self.get_argument('keyword').split())
         search_id = database.Search.new(search_word)
-        self.set_secure_cookie(
-            'search_id',
-            str(search_id),
-        )
-        if gen.search(search_id).next(): 
-            redirect_url =\
-                (
-                    '/list/search?'
-                    'search_id={search_id}'
-                ).format(search_id=search_id)
-            self.redirect(redirect_url)
-        else:
-            self.send_error(404) 
+        redirect_url =\
+            (
+                '/list/search?'
+                'search_id={search_id}'
+            ).format(search_id=search_id)
+        self.redirect(redirect_url)
 
 class ListHandler(SafeHandler):
     list_actives = {
@@ -137,34 +133,45 @@ class ListHandler(SafeHandler):
         user_id = self.get_secure_cookie('user_id')
         page_index = int(self.get_argument('page_index'))
         bunch_index = int(self.get_argument('bunch_index'))
-        refresh = True if self.get_argument('refresh') == 'true' else False 
 
         page = database.Page(bunch_index=bunch_index, page_index=page_index)
         collected_search = user_id
 
         if list_type == 'search':
-            search_id = self.get_argument('search_id')
-            search_result = database.Search.select(search_id)
-            if search_result.search_status != 'Success':
-                self.write(str(search_result.search_status))
-                return
-            data_range = json.loads(search_result.search_result)
-            def inter(listA, listB):
-                return list(set(listA).intersection(set(listB)))
-            data_range = reduce(inter, data_range)
+            search_id = self.get_argument('search_id', None)
+            if not search_id:
+                data_range = None
+            else:
+                search_result = database.Search.select(search_id)
+                if search_result.search_status == 'Pending':
+                    if not gen.search(search_id).next(): 
+                        self.send_error(404)
+                        return 
+                    search_result = database.Search.select(search_id)
+                
+                if search_result.search_status != 'Success':
+                    self.send_error(404)
+            
+                data_range = json.loads(search_result.search_result)
+                if data_range:
+                    def inter(listA, listB):
+                        return list(set(listA).intersection(set(listB)))
+                    data_range = reduce(inter, data_range.values())
 
         if list_type == 'collected':
-            data_range = database.Action.selectmany(user_id)
-            collected_search = None 
+            data_range = database.Action.selectmany(user_id, database.Action.COLLECT)
+            if data_range is not None:
+                data_range = [ action.data_id for action in data_range ]
 
-        page = page.paging(user_id, data_range=data_range, refresh=refresh)
-        print page
+        page = page.paging(user_id, data_range=data_range)
         
         page_data = database.Data.query(page, collected_search=collected_search)
 
         def get_title(data):
             data.data_title = json.loads(data.data_content)['title']
+            data.data_score = "{:.2f}".format(data.data_score)
         map(get_title, page_data)
+
         self.write(''.join(
             [
                 self.render_string(
@@ -174,16 +181,23 @@ class ListHandler(SafeHandler):
             ]
         ))
 
+class MainHandler(SafeHandler):
+    @tornado.web.authenticated
+    def get(self):
+        self.redirect("/list/search")
+
 class SettingsHandler(SafeHandler):
     @tornado.web.authenticated
     def get(self, null):
         user_id = self.get_current_user()
         user = database.User.select(user_id=user_id)       
+        model = database.Model.select(model_id=user.user_model)
         keywords = database.Keyword.select(user_id)
         self.render(
             "settings.html", 
             title="企业信息服务平台-用户设置", 
-            user_info=user_info,
+            user=user,
+            model=model,
             keywords=keywords,
             active_index=5,
         )
@@ -195,8 +209,10 @@ class SettingsHandler(SafeHandler):
         user_id = self.get_current_user()
         if string == '/delete_keyword':
             database.Keyword.delete(keyword, user_id)
+            gen.calculate(user_id).next()
         if string == '/new_keyword':
             database.Keyword.new(keyword, user_id)
+            gen.calculate(user_id).next()
 
 class LogoutHandler(SafeHandler):
     @tornado.web.authenticated
@@ -212,8 +228,7 @@ class ArticleHandler(SafeHandler):
             self.raise_error(404)
         data = json.loads(all_data.data_content)
         data['data_id'] = all_data.data_id
-#        data["data_score"] = self.get_argument('data_score')
-        data["data_score"] = 0
+        data["data_score"] = self.get_argument('data_score')
         ifcollected =\
             database.Action.check(
                 data_id,

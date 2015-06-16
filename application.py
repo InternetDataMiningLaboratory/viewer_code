@@ -24,7 +24,7 @@ from settings import settings
         (r"[正则匹配模板]", [handler　类])
 '''
 application = tornado.web.Application([
-    (r"/", handlers.LoginHandler),
+    (r"/", handlers.MainHandler),
     (r"/list/(\w+)", handlers.ListHandler),
     (r"/register", handlers.RegisterHandler),
     (r"/login", handlers.LoginHandler),
@@ -33,4 +33,5 @@ application = tornado.web.Application([
     (r"/settings(/\w+)*", handlers.SettingsHandler),
     (r"/search", handlers.SearchHandler),
     (r"/article/(\d+)", handlers.ArticleHandler),
+    (r".*", handlers.BaseHandler),
 ], **settings)

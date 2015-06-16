@@ -13,47 +13,6 @@ import tornado.web
 class ArticleItemModule(tornado.web.UIModule):
     def render(self, article_item):
         return self.render_string('module/articleItem.html', article_item=article_item)
-    def embedded_css(self):
-        return\
-            '''
-                .list-group-item {
-                    color:#958976;
-                    height:100px;
-                    padding:20px 10px
-                }
-                .list-group-item-heading{
-                    margin-bottom:10px;
-                    font-size:1.5em
-                }
-                .right-info{
-                    text-align: right
-                }
-                .collection{
-                    margin-left: 10px;
-                    color: #611427;
-                }
-            '''
-
-
-    def embedded_javascript(self):
-        return\
-            '''
-                $(".collection").click(
-                    function(e){
-                        var cSpan = $(this);
-                        e.preventDefault();
-                        var ifcollected = true;
-                        if(cSpan.hasClass("uncollected")){
-                            ifcollected = false;
-                        }
-                        collect(cSpan, ifcollected, cSpan.parents("a").prev().attr("name"));
-                    }
-                    
-                );
-            '''
-
-    def javascript_files(self):
-        return '/static/js/collect.js'
 
 class ArticleModule(tornado.web.UIModule):
     def render(self, article):
@@ -91,12 +50,6 @@ class ArticleModule(tornado.web.UIModule):
                     margin-top: 10px;
                     margin-bottom: 15px;
                 }
-            '''
-    def embedded_javascript(self):
-        return\
-            '''
-                $("div#leftMain ul li:eq(2) a").attr("href", '/#'+$("div.article-body").data("id"));    
-                $("div#leftMain ul li:eq(4) a").attr("href", '/collected#'+$("div.article-body").data("id"));    
             '''
 
 class BackTopModule(tornado.web.UIModule):
@@ -213,32 +166,51 @@ class ListModule(tornado.web.UIModule):
         return\
             ''' 
             function list(refresh){
-                if(refresh&&$("#ArticleList").data("bunch")>9){
+                $("#PageNext>button").attr("disabled", false);
+                $("#PageFormer>button").attr("disabled", false);
+                if(refresh&&$("#ArticleList").data("bunch")>4){
                     $("#ArticleList").data("scroll", "true");
+                    var page_index = $("#ArticleList").data("page");
+                    if(page_index == 0){
+                        $("#PageFormer>button").attr("disabled", true);
+                    }
+                    $("#Pagination").fadeIn("1000");
                     return;
                 }
+                $("#ListInfo").show();
+                $("#ListInfo").text("正在加载");
+                $("#Pagination").hide();
                 $.post(
                     "#", 
                     {
                         _xsrf:getCookie("_xsrf"),
                         page_index:$("#ArticleList").data("page"),
                         bunch_index:$("#ArticleList").data("bunch"),
-                        refresh:refresh,
                     }, 
                     function(data){
                         if(data.search("Error") != -1){
                             alerting(data, "error");
+                            return
+                        }
+                        if(data == null || data == ""){
+                            var page_index = $("#ArticleList").data("page");
+                            if(page_index < 1){
+                                $("#ListInfo").text("无更多内容");
+                            }
+                            else{
+                                $("#PageNext>button").attr("disabled", true);
+                                $("#ListInfo").hide();
+                                $("#Pagination").fadeIn("1000");
+                            }
+                            return
                         }
                         if(!refresh){
-                            var page_index = $("#ArticleList").data("page");
-                            $("#ArticleList").data("page", page_index+1);
-                            $("#ArticleList").data("bunch", 0);
                             $("#ArticleList").empty();
+                            $("#rightMain").scrollTop(0);
                         }
-                        else{
-                            var bunch_index = $("#ArticleList").data("bunch");
-                            $("#ArticleList").data("bunch", bunch_index+1);
-                        }
+                        var bunch_index = $("#ArticleList").data("bunch");
+                        $("#ArticleList").data("bunch", bunch_index+1);
+                        $("#ListInfo").hide();
                         
                         $("#ArticleList").append(data);
                         $("#ArticleList").data("scroll", true);
@@ -258,5 +230,53 @@ class ListModule(tornado.web.UIModule):
                     list(true);
                 }
             });
-                
+            $("#PageNext").click(function(){
+                var page_index = $("#ArticleList").data("page");
+                $("#ArticleList").data("page", page_index+1); 
+                $("#ArticleList").data("bunch", 0);
+                $("#ArticleList").data("scroll", false);
+                list(false);
+            });
+            $("#PageFormer").click(function(){
+                var page_index = $("#ArticleList").data("page");
+                $("#ArticleList").data("page", page_index-1); 
+                $("#ArticleList").data("bunch", 0);
+                $("#ArticleList").data("scroll", false);
+                list(false);
+            });
+            '''
+
+    def embedded_css(self):
+        return\
+            '''
+                .list-group-item {
+                    color:#958976;
+                    height:100px;
+                    padding:20px 10px
+                }
+                .list-group-item-heading{
+                    margin-bottom:10px;
+                    font-size:1.5em
+                }
+                .right-info{
+                    text-align: right
+                }
+                .collection{
+                    margin-left: 10px;
+                    color: #611427;
+                }
+                #Pagination button{
+                    width:100%;
+                    border: none;
+                    height: 100px;
+                    background-color: inherit;
+                    font-size: 20px;
+                }
+                #ListInfo{
+                    text-align:center;
+                    height: 150px;
+                    font-size: 30px;
+                    line-height: 150px;
+                }
+        
             '''

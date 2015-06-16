@@ -6,7 +6,7 @@
 {% block main%}
     <div class="container">
         <h1>设置 
-            <small>{{ user_info['user_name'] }}</small>
+            <small>{{ user['user_name'] }}</small>
             <span class="logout">
                 <button data-toggle="modal" data-target="#logout">注销</button>
             </span>
@@ -16,11 +16,11 @@
             <h4>基本信息</h4>
             <div class="row">
                 <div class="col-md-2 col-sm-12">用户名</div>
-                <div class="col-md-10 col-sm-12">{{user_info['user_name']}}</div>
+                <div class="col-md-10 col-sm-12">{{user['user_name']}}</div>
             </div>
             <div class="row">
                 <div class="col-md-2 col-sm-12">使用模型</div>
-                <div class="col-md-10 col-sm-12">{{user_info['model_name']}}</div>
+                <div class="col-md-10 col-sm-12">{{model['model_name']}}</div>
             </div>
         </section>
         <section>

@@ -35,7 +35,6 @@ try:
             user=os.getenv('DATABASE_USER'),
             password=os.getenv('DATABASE_PASSWD'),
         )
-    print os.getenv('DATABASE_USER')
     CONTRIBUTE_CRAWLER =\
         torndb.Connection(
             'mysql.service.consul',
@@ -75,19 +74,15 @@ class User(object):
             result = COMPANY_SERVICE.get(sql)
         elif user_name is not None:
             sql += 'WHERE user_name = %s'
-            logging.error(sql)
             result = COMPANY_SERVICE.get(sql, user_name)
-        
-
-        if result is None:
-            return
         
         return result
 
     @staticmethod
     def login(user_name, user_password):
         user = User.select(user_name=user_name)
-        if user.user_password == user_password:
+        if user is not None \
+            and user.user_password == user_password:
             return True
         return False
 
@@ -131,35 +126,37 @@ class Page(object):
         'bunch_num',
     ]
     
-    def __init__(self, page_index=0, bunch_index=0, page_size=200, bunch_num=10):
+    def __init__(self, page_index=0, bunch_index=0, page_size=100, bunch_num=5):
         self.page_index = page_index
         self.bunch_index = bunch_index
         self.page_size = page_size
         self.bunch_num = bunch_num
 
-    def paging(self, user_id, data_range=None, refresh=False):
+    def paging(self, user_id, data_range=None):
         user_score = User.score(user_id)
         bunch_size = self.page_size / self.bunch_num
         start_index = self.page_index * self.page_size
-        end_index = start_index + (self.bunch_index + 1) * bunch_size
-        if refresh:
-            start_index += self.bunch_index * bunch_size
-
+        start_index += self.bunch_index * bunch_size
+        end_index = start_index + bunch_size
+        
         try:
             user_score = json.loads(user_score)
-        except ValueError, e:
+            logging.error(user_score)
+        except (ValueError, TypeError), e:
             logging.exception(e)
             user_score = {}
         
         if data_range is not None:
             user_score = [(k, user_score.get(str(k), 0)) for k in data_range]
         
-        elif end_index > len(user_score):
-            load_num = len(user_score) - end_index
-            start_num = load_num - bunch_size if load_num > bunch_size else 0
-            load_data = Data.query_in_id(start_num, load_num)
-            load_data = [(data, 0) for data in load_data if data not in user_score]
-            user_score.extend(load_data)
+        else:
+            user_score = user_score.items()
+            if end_index > len(user_score):
+                load_num = end_index - len(user_score)
+                start_num = load_num - bunch_size if load_num > bunch_size else 0
+                load_data = Data.query_in_id(start_num, load_num)
+                load_data = [(data.data_id, 0) for data in load_data if data not in user_score]
+                user_score.extend(load_data)
         
         user_score.sort(key=lambda x:x[1], reverse=True)
         
@@ -329,7 +326,7 @@ class Keyword(object):
                 'WHERE keyword = %s '
                 'AND user_id = {user_id}'
             ).format(user_id=user_id)
-        COMPANY_SERVICE.execute(sql)
+        COMPANY_SERVICE.execute(sql, keyword)
 
 class Search(object):
     
@@ -342,9 +339,9 @@ class Search(object):
                 'null, '
                 '%s, '
                 'null, '
-                'null)'
+                '%s)'
             )
-        return COMPANY_SERVICE.insert(sql, search_word)
+        return COMPANY_SERVICE.insert(sql, search_word, 'Pending')
 
     @staticmethod
     def select(search_id):
