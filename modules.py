@@ -144,6 +144,7 @@ class NewKeywordModule(tornado.web.UIModule):
                                 window.location.reload(); 
                             }
                             else{
+                                $("#newKeyword").modal("hide");
                                 alerting("重复的关键字", "error");
                             }
                         }

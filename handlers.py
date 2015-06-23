@@ -205,7 +205,6 @@ class SettingsHandler(SafeHandler):
     @tornado.web.authenticated
     def post(self, string):
         keyword = self.get_argument('keyword')
-        keyword = keyword.encode('utf-8')
         user_id = self.get_current_user()
         if string == '/delete_keyword':
             database.Keyword.delete(keyword, user_id)
@@ -213,11 +212,14 @@ class SettingsHandler(SafeHandler):
             self.write("Success")
         if string == '/new_keyword':
             keywords = database.Keyword.select(user_id)
+            keywords = [ value["keyword"] for value in keywords ]
+    
             if keyword in keywords:
                 self.write("Error")
-            database.Keyword.new(keyword, user_id)
-            gen.calculate(user_id).next()
-            self.write("Success")
+            else:
+                database.Keyword.new(keyword, user_id)
+                gen.calculate(user_id).next()
+                self.write("Success")
 
 class LogoutHandler(SafeHandler):
     @tornado.web.authenticated
