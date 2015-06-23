@@ -210,9 +210,14 @@ class SettingsHandler(SafeHandler):
         if string == '/delete_keyword':
             database.Keyword.delete(keyword, user_id)
             gen.calculate(user_id).next()
+            self.write("Success")
         if string == '/new_keyword':
+            keywords = database.Keyword.select(user_id)
+            if keyword in keywords:
+                self.write("Error")
             database.Keyword.new(keyword, user_id)
             gen.calculate(user_id).next()
+            self.write("Success")
 
 class LogoutHandler(SafeHandler):
     @tornado.web.authenticated

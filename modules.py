@@ -138,9 +138,14 @@ class NewKeywordModule(tornado.web.UIModule):
                     $.post(
                         '/settings/new_keyword', 
                         $("#newKeywordForm").serialize(),
-                        function(){
+                        function(data){
                             $btn.button('reset');
-                            window.location.reload(); 
+                            if(data=="success"){
+                                window.location.reload(); 
+                            }
+                            else{
+                                alerting("重复的关键字", "error");
+                            }
                         }
                     );
                 });
